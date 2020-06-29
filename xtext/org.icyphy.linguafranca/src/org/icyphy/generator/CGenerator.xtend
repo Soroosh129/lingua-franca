@@ -365,6 +365,17 @@ class CGenerator extends GeneratorBase {
         
         for (file : files) {
             copyFileFromClassPath(
+                "/" + "lib" + "/" + "core" + "/" + file,
+                srcGenPath + File.separator + "core" +  File.separator + file
+            )
+        }
+
+
+        // Target-specific files
+        var target_files = newArrayList("ctarget.h");
+
+        for (file : target_files) {
+            copyFileFromClassPath(
                 "/" + "lib" + "/" + "C" + "/" + file,
                 srcGenPath + File.separator + file
             )
@@ -676,7 +687,7 @@ class CGenerator extends GeneratorBase {
             #undefine NUMBER_OF_FEDERATES
             #endif
             #define NUMBER_OF_FEDERATES «federates.length»
-            #include "rti.c"
+            #include "core/rti.c"
             int main(int argc, char* argv[]) {
         ''')
         indent(rtiCode)
@@ -851,7 +862,8 @@ class CGenerator extends GeneratorBase {
                     ssh «federate.host» mkdir -p «path»/src-gen «path»/bin «path»/log
                     pushd src-gen > /dev/null
                     echo "Copying source files to host «federate.host»"
-                    scp «filename»_«federate.name».c reactor_common.c reactor.h pqueue.c pqueue.h util.h util.c reactor_threaded.c federate.c rti.h «federate.host»:«path»/src-gen
+                    scp «filename»_«federate.name».c ctarget.h «federate.host»:«path»/src-gen
+                    scp core/reactor_common.c core/reactor.h core/pqueue.c core/pqueue.h core/util.h core/util.c core/reactor_threaded.c core/federate.c core/rti.h «federate.host»:«path»/src-gen/core/
                     popd > /dev/null
                     echo "Compiling on host «federate.host» using: «this.targetCompiler» -O2 src-gen/«filename»_«federate.name».c -o bin/«filename»_«federate.name» -pthread"
                     ssh «federate.host» 'cd «path»; «this.targetCompiler» -O2 src-gen/«filename»_«federate.name».c -o bin/«filename»_«federate.name» -pthread'
@@ -887,7 +899,8 @@ class CGenerator extends GeneratorBase {
                 ssh «target» mkdir -p «path»/src-gen «path»/bin «path»/log
                 pushd src-gen > /dev/null
                 echo "Copying source files to host «target»"
-                scp «filename»_RTI.c rti.c rti.h util.h util.c reactor.h pqueue.h «target»:«path»/src-gen
+                 scp «filename»_RTI.c ctarget.h «target»:«path»/src-gen
+                scp core/rti.c core/rti.h core/util.h core/util.c core/reactor.h core/pqueue.h «target»:«path»/src-gen/core
                 popd > /dev/null
                 echo "Compiling on host «target» using: «this.targetCompiler» -O2 «path»/src-gen/«filename»_RTI.c -o «path»/bin/«filename»_RTI -pthread"
                 ssh «target» '«this.targetCompiler» -O2 «path»/src-gen/«filename»_RTI.c -o «path»/bin/«filename»_RTI -pthread'
@@ -2793,7 +2806,7 @@ class CGenerator extends GeneratorBase {
     override generatePreamble() {
         super.generatePreamble()
         
-        pr('#include "pqueue.c"')
+        pr('#include "core/pqueue.c"')
         pr('#define NUMBER_OF_FEDERATES ' + federates.length);
                         
         // Handle target parameters.
@@ -2809,12 +2822,12 @@ class CGenerator extends GeneratorBase {
                    number_of_threads = «targetThreads»;
                 }
             ''')
-            pr("#include \"reactor_threaded.c\"")
+            pr("#include \"core/reactor_threaded.c\"")
         } else {
-            pr("#include \"reactor.c\"")
+            pr("#include \"core/reactor.c\"")
         }
         if (federates.length > 1) {
-            pr("#include \"federate.c\"")
+            pr("#include \"core/federate.c\"")
         }
         if (targetFast) {
             // The runCommand has a first entry that is ignored but needed.
