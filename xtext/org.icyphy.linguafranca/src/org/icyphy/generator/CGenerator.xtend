@@ -859,7 +859,7 @@ class CGenerator extends GeneratorBase {
                 if(distCode.length === 0) pr(distCode, distHeader)
                 pr(distCode, '''
                     echo "Making directory «path» and subdirectories src-gen and path on host «federate.host»"
-                    ssh «federate.host» mkdir -p «path»/src-gen «path»/bin «path»/log
+                    ssh «federate.host» mkdir -p «path»/src-gen «path»/bin «path»/log «path»/src-gen/core
                     pushd src-gen > /dev/null
                     echo "Copying source files to host «federate.host»"
                     scp «filename»_«federate.name».c ctarget.h «federate.host»:«path»/src-gen
@@ -896,7 +896,7 @@ class CGenerator extends GeneratorBase {
             pr(distCode, '''
                 cd «path»
                 echo "Making directory «path» and subdirectories src-gen and path on host «target»"
-                ssh «target» mkdir -p «path»/src-gen «path»/bin «path»/log
+                ssh «target» mkdir -p «path»/src-gen «path»/bin «path»/log «path»/src-gen/core
                 pushd src-gen > /dev/null
                 echo "Copying source files to host «target»"
                  scp «filename»_RTI.c ctarget.h «target»:«path»/src-gen
